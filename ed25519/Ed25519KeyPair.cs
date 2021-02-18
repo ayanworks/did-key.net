@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using NSec.Cryptography;
 //using Multiformats.Base;
@@ -13,6 +14,8 @@ namespace ed25519
         public string Controller { get; set; }
         public string PublicKeyMultibase { get; set; }
         public byte[] PrivateKeyBuffer { get; set; }
+
+        public Key KeyPair { get; set; }
 
         public Ed25519KeyPair()
         {
@@ -58,14 +61,15 @@ namespace ed25519
 
             string keyId = String.Format("#{0}", didRaw);
             Console.WriteLine("keyId: {0}", keyId);
-
+            this.KeyPair = key;
             return new Ed25519KeyPair
             {
                 Id = keyId,
                 Controller = did,
                 Type = "Ed25519VerificationKey2018",
                 PublicKeyMultibase = publicKeyBase58,
-                PrivateKeyBuffer = Base58.Bitcoin.Decode(privateKeyBase58).ToArray()
+                PrivateKeyBuffer = Base58.Bitcoin.Decode(privateKeyBase58).ToArray(),
+                KeyPair = key
             };
         }
 
@@ -95,15 +99,25 @@ namespace ed25519
             return String.Format("z{0}", Base58.Bitcoin.Encode(buffer));
         }
 
-        //public async signer()
-        //{
-        //    if (!this.privateKeyBuffer)
-        //    {
-        //        throw new Error("No private key to sign with.");
-        //    }
-        //    var (privateKeyBuffer ) = this;
-        //    return sign();
-        //}
+        public byte[] sign(string data)
+        {
+            if (this.PrivateKeyBuffer==null)
+            {
+                throw new Exception("No private key to sign with.");
+            }
+             byte[] signatureUInt8Array = SignatureAlgorithm.Ed25519.Sign(this.KeyPair, Encoding.UTF8.GetBytes(data));
+            return signatureUInt8Array;
+        }
+
+        public bool verify(string data,byte[] signature)
+        {
+            if (this.PublicKeyMultibase == null)
+            {
+                throw new Exception("No private key to sign with.");
+            }
+            bool isValid = SignatureAlgorithm.Ed25519.Verify(this.KeyPair.PublicKey, Encoding.UTF8.GetBytes(data), signature);
+            return isValid;
+        }
 
         //Func<T> byte[] sign(string data)
         //{
