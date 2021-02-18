@@ -2,7 +2,8 @@
 
 namespace did_key
 {
-    public class Class1
+    public class Resolver
     {
+
     }
 }

@@ -10,16 +10,10 @@ namespace ed25519
         public string Id { get; set; }
         public string Type { get; set; }
         public string Controller { get; set; }
-
-        //public byte[] PublicKeyBuffer { get; set; }
-        //public byte[]? PrivateKeyBuffer { get; set; }
-
         public string PublicKeyMultibase { get; set; }
-        public string? PrivateKeyBuffer { get; set; }
 
         public Ed25519KeyPair()
         {
-
         }
 
         public Ed25519KeyPair(string id, string controller)
@@ -29,21 +23,19 @@ namespace ed25519
             Controller = controller;
         }
 
-        public static Ed25519KeyPair Generate(bool secureRandom = true)
+        public Ed25519KeyPair Generate(KeyPairOptions options)
         {
-            Ed25519 algo_Ed25519 = SignatureAlgorithm.Ed25519;
             Key key;
+            //if (options.SecureRamdom != null /*&& options.SecureRamdom.Length > 0*/)
+            //{
+            //    key = Key.Create(SignatureAlgorithm.Ed25519, createPolicy());
+            //}
+            //else
+            //{
+            //    throw new Exception("options.secureRandom is required.");
+            //}
 
-            if (secureRandom)
-            {
-                key = Key.Create(SignatureAlgorithm.Ed25519, createPolicy());
-            }
-            else
-            {
-                throw new Exception("options.secureRandom is required.");
-            }
-
-            var p = key.ExportPolicy;
+            key = Key.Create(SignatureAlgorithm.Ed25519, createPolicy());
 
             const KeyBlobFormat privateKeyBlob = KeyBlobFormat.NSecPrivateKey;
             const KeyBlobFormat publicKeyBlob = KeyBlobFormat.NSecPublicKey;
@@ -62,21 +54,18 @@ namespace ed25519
             {
                 Id = keyId,
                 Controller = did,
-                PrivateKeyBuffer = publicKeyBase58,
+                Type = "Ed25519VerificationKey2018",
                 PublicKeyMultibase = privateKeyBase58
             };
         }
 
-        private static KeyCreationParameters createPolicy()
+        private KeyCreationParameters createPolicy()
         {
             KeyExportPolicies policy = KeyExportPolicies.AllowPlaintextExport;
-
-            KeyCreationParameters keyparam;
-            keyparam.ExportPolicy = policy;
-            return keyparam;
+            return new KeyCreationParameters() { ExportPolicy = policy };
         }
 
-        public static string fingerprintFromPublicKey(string publicKeyBase58)
+        public string fingerprintFromPublicKey(string publicKeyBase58)
         {
             byte[] pubkeyBytes = null;
 
