@@ -46,16 +46,19 @@ namespace ed25519
             string privateKeyBase58 = Multibase.Encode(MultibaseEncoding.Base58Btc, secretKey);
             string publicKeyBase58 = Multibase.Encode(MultibaseEncoding.Base58Btc, publicKey);
 
-            //string didRaw = fingerprintFromPublicKey(publicKeyBase58);
-            string did = String.Format("did:key:{0}", publicKeyBase58);
-            string keyId = String.Format("#{0}", publicKeyBase58);
+            Console.WriteLine($"privateKeyBase58 :${privateKeyBase58}");
+            Console.WriteLine($"publicKeyBase58 :${publicKeyBase58}");
+
+            string didRaw = fingerprintFromPublicKey(publicKeyBase58);
+            string did = String.Format("did:key:{0}", didRaw);
+            string keyId = String.Format("#{0}", didRaw);
 
             return new Ed25519KeyPair
             {
                 Id = keyId,
                 Controller = did,
                 Type = "Ed25519VerificationKey2018",
-                PublicKeyMultibase = privateKeyBase58
+                PublicKeyMultibase = publicKeyBase58
             };
         }
 
@@ -79,7 +82,8 @@ namespace ed25519
             byte[] buffer = new byte[2 + pubkeyBytes.Length];
             buffer[0] = (byte)0xed;
             buffer[1] = (byte)0x01;
-            buffer.SetValue(pubkeyBytes, 2);
+            //buffer.SetValue(pubkeyBytes, 2);
+            pubkeyBytes.CopyTo(buffer, 2);
             // prefix with `z` to indicate multi-base base58btc encoding
             return String.Format("z{0}", Multibase.Encode(MultibaseEncoding.Base58Btc, buffer));
         }
