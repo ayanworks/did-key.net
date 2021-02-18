@@ -20,7 +20,7 @@ namespace did_key_test_console
 
             Ed25519KeyPair keyPair = new Ed25519KeyPair().Generate(options);
 
-            Console.WriteLine(JsonConvert.SerializeObject(keyPair));
+            Console.WriteLine("\n\n"+JsonConvert.SerializeObject(keyPair));
         }
     }
 }
