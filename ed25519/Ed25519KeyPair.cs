@@ -11,8 +11,11 @@ namespace ed25519
         public string Type { get; set; }
         public string Controller { get; set; }
 
-        public byte[] PublicKeyBuffer { get; set; }
-        public byte[] PrivateKeyBuffer { get; set; }
+        //public byte[] PublicKeyBuffer { get; set; }
+        //public byte[]? PrivateKeyBuffer { get; set; }
+
+        public string PublicKeyMultibase { get; set; }
+        public string? PrivateKeyBuffer { get; set; }
 
         public Ed25519KeyPair()
         {
@@ -26,79 +29,87 @@ namespace ed25519
             Controller = controller;
         }
 
-        static async Ed25519KeyPair Generate(bool secureRandom)
+        public static Ed25519KeyPair Generate(bool secureRandom = true)
         {
+            Ed25519 algo_Ed25519 = SignatureAlgorithm.Ed25519;
             Key key;
+
             if (secureRandom)
             {
-                using var key = Key.Create(SignatureAlgorithm.Ed25519, createPolicy());
-                
+                key = Key.Create(SignatureAlgorithm.Ed25519, createPolicy());
             }
             else
             {
-                throw new Error("options.secureRandom is required.");
+                throw new Exception("options.secureRandom is required.");
             }
 
             var p = key.ExportPolicy;
 
-            KeyBlobFormat pkf = KeyBlobFormat.NSecPrivateKey;
-            KeyBlobFormat pubkf = KeyBlobFormat.NSecPublicKey;
+            const KeyBlobFormat privateKeyBlob = KeyBlobFormat.NSecPrivateKey;
+            const KeyBlobFormat publicKeyBlob = KeyBlobFormat.NSecPublicKey;
 
-            var secretKey = key.Export(pkf);
-            var publicKey = key.Export(pubkf);
+            byte[] secretKey = key.Export(privateKeyBlob);
+            byte[] publicKey = key.Export(publicKeyBlob);
 
-            const string privateKeyBase58 = Multibase.Encode(MultibaseEncoding.Base58Btc, pk);
-            const string publicKeyBase58 = Multibase.Encode(MultibaseEncoding.Base58Btc, pubk);
+            string privateKeyBase58 = Multibase.Encode(MultibaseEncoding.Base58Btc, secretKey);
+            string publicKeyBase58 = Multibase.Encode(MultibaseEncoding.Base58Btc, publicKey);
 
-            //const publicKeyBase58 = bs58.encode(key.publicKey);
-            //const privateKeyBase58 = bs58.encode(key.secretKey);
+            //string didRaw = fingerprintFromPublicKey(publicKeyBase58);
+            string did = String.Format("did:key:{0}", publicKeyBase58);
+            string keyId = String.Format("#{0}", publicKeyBase58);
 
-            string didRaw = Ed25519KeyPair.fingerprintFromPublicKey(publicKeyBase58);
-            const string did = String.Format("did:key:{0}", didRaw);
-            const string keyId = String.Format("#", didRaw);
-
-            return new Ed25519KeyPair{
-                          Id= keyId,
-                          Controller= did,
-                          publicKeyBase58,
-                          privateKeyBase58
-                        };
+            return new Ed25519KeyPair
+            {
+                Id = keyId,
+                Controller = did,
+                PrivateKeyBuffer = publicKeyBase58,
+                PublicKeyMultibase = privateKeyBase58
+            };
         }
 
-        static async string fingerprintFromPublicKey(string publicKeyBase58, string privateKeyBase58)
+        private static KeyCreationParameters createPolicy()
         {
-            string pubkeyBytes;
+            KeyExportPolicies policy = KeyExportPolicies.AllowPlaintextExport;
 
-            if (publicKeyBase58)
+            KeyCreationParameters keyparam;
+            keyparam.ExportPolicy = policy;
+            return keyparam;
+        }
+
+        public static string fingerprintFromPublicKey(string publicKeyBase58)
+        {
+            byte[] pubkeyBytes = null;
+
+            if (!String.IsNullOrEmpty(publicKeyBase58))
             {
-                pubkeyBytes = Multibase.Decode(MultibaseEncoding.Base58Btc, pubk);
-            }          
+                pubkeyBytes = Multibase.Decode(publicKeyBase58, out MultibaseEncoding encoding);
+            }
             // ed25519 cryptonyms are multicodec encoded values, specifically:
             // (multicodec ed25519-pub 0xed01 + key bytes)
 
-            byte[] buffer = new byte(2 + pubkeyBytes.length);
-            buffer[0] = 0xed;
-            buffer[1] = 0x01;
-            buffer.set(pubkeyBytes, 2);
+            byte[] buffer = new byte[2 + pubkeyBytes.Length];
+            buffer[0] = (byte)0xed;
+            buffer[1] = (byte)0x01;
+            buffer.SetValue(pubkeyBytes, 2);
             // prefix with `z` to indicate multi-base base58btc encoding
-            return String.Format("z{0}",Multibase.Encode(MultibaseEncoding.Base58Btc, buffer));
+            return String.Format("z{0}", Multibase.Encode(MultibaseEncoding.Base58Btc, buffer));
         }
 
-       //public Func<T> signer() 
-       // {
-       //     if (!this.privateKeyBuffer)
-       //     {
-       //         throw new Error("No private key to sign with.");
-       //     }
-       //     var ( privateKeyBuffer ) = this;
-       //     return sign();
-       // }
+        //public Func<T> signer() 
+        // {
+        //     if (!this.privateKeyBuffer)
+        //     {
+        //         throw new Error("No private key to sign with.");
+        //     }
+        //     var ( privateKeyBuffer ) = this;
+        //     return sign();
+        // }
 
-       // async byte[] sign(string data)
-       // {
-       //     const string signatureUInt8Array = "";//ed25519.sign(this.PrivateKeyBuffer, data);
-       //     return signatureUInt8Array;
-       // }
+        // async byte[] sign(string data)
+        // {
+        //     const string signatureUInt8Array = "";//algo_Ed25519.sign(this.PrivateKeyBuffer, data);
+        //     return signatureUInt8Array;
+        // }
 
     }
 }
