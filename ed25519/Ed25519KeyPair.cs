@@ -42,8 +42,8 @@ namespace ed25519
 
             key = Key.Create(SignatureAlgorithm.Ed25519, createPolicy());
 
-            const KeyBlobFormat privateKeyBlob = KeyBlobFormat.NSecPrivateKey;
-            const KeyBlobFormat publicKeyBlob = KeyBlobFormat.NSecPublicKey;
+            const KeyBlobFormat privateKeyBlob = KeyBlobFormat.RawPrivateKey;
+            const KeyBlobFormat publicKeyBlob = KeyBlobFormat.RawPublicKey;
 
             byte[] secretKey = key.Export(privateKeyBlob);
             byte[] publicKey = key.Export(publicKeyBlob);
