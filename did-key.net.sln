@@ -7,11 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "did-key", "did-key\did-key.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ed25519", "ed25519\ed25519.csproj", "{DB2EFA88-0A35-4634-AD44-A63ACB100D08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "did-key-test-console", "Tests\did-key-test-console\did-key-test-console.csproj", "{F64A14DE-CE15-40D6-8E0F-1FD443B02AD7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "did-key-test-console", "Tests\did-key-test-console\did-key-test-console.csproj", "{F64A14DE-CE15-40D6-8E0F-1FD443B02AD7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{86C57107-9898-43BD-995C-67B9F9456C6B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "did-key-tests-xunit", "Tests\did-key-tests-xunit\did-key-tests-xunit.csproj", "{AB3B80B0-4045-436C-B445-8BB61FB02847}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "did-key-tests-xunit", "Tests\did-key-tests-xunit\did-key-tests-xunit.csproj", "{AB3B80B0-4045-436C-B445-8BB61FB02847}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "did-core", "did-core\did-core.csproj", "{94680C45-B1C1-4A7E-92AF-3766CF69599E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,15 +37,19 @@ Global
 		{AB3B80B0-4045-436C-B445-8BB61FB02847}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB3B80B0-4045-436C-B445-8BB61FB02847}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB3B80B0-4045-436C-B445-8BB61FB02847}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94680C45-B1C1-4A7E-92AF-3766CF69599E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94680C45-B1C1-4A7E-92AF-3766CF69599E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94680C45-B1C1-4A7E-92AF-3766CF69599E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94680C45-B1C1-4A7E-92AF-3766CF69599E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {BBF8FDB7-D52D-49F0-936C-C3BF92CBE72C}
-	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F64A14DE-CE15-40D6-8E0F-1FD443B02AD7} = {86C57107-9898-43BD-995C-67B9F9456C6B}
 		{AB3B80B0-4045-436C-B445-8BB61FB02847} = {86C57107-9898-43BD-995C-67B9F9456C6B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BBF8FDB7-D52D-49F0-936C-C3BF92CBE72C}
 	EndGlobalSection
 EndGlobal

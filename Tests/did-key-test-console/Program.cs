@@ -23,11 +23,16 @@ namespace did_key_test_console
 
             Console.WriteLine("\n\n"+JsonConvert.SerializeObject(keyPair));
 
+            Ed25519KeyPair SignkeyPair = new Ed25519KeyPair();
+            SignkeyPair.PrivateKeyBuffer = keyPair.PrivateKeyBuffer;
+            //string privateKey = Base58.Bitcoin.Encode(keyPair.PrivateKeyBuffer);
             string messgae = "Hello world";
-            byte[] Signature = keyPair.sign(messgae);
+            byte[] Signature = SignkeyPair.sign(messgae);
 
+            Ed25519KeyPair verifykeyPair = new Ed25519KeyPair();
+            verifykeyPair.PublicKeyBuffer = keyPair.PublicKeyBuffer;
             Console.WriteLine("Signature: {0}", Encoding.UTF8.GetString(Signature));
-            bool IsVerified = keyPair.verify(messgae, Signature);
+            bool IsVerified = verifykeyPair.verify(messgae, Signature);
 
             Console.WriteLine("IsVerified: {0}", IsVerified);
 

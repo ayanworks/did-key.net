@@ -5,4 +5,9 @@
     <RootNamespace>DidCore</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\did-key\did-key.csproj" />
+    <ProjectReference Include="..\ed25519\ed25519.csproj" />
+  </ItemGroup>
+
 </Project>

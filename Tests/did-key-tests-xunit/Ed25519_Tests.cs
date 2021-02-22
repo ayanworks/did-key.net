@@ -37,10 +37,7 @@ namespace Ed25519
             byte[] random = new byte[32];
             NSec.Cryptography.RandomGenerator.Default.GenerateBytes(random);
 
-            KeyPairOptions options = new KeyPairOptions()
-            {
-                SecureRamdom = random
-            };
+            KeyPairOptions options = new KeyPairOptions();
 
             //Act
             var keyPair = ed25519KeyGenerator.Generate(options);
@@ -49,7 +46,7 @@ namespace Ed25519
             Assert.NotEmpty(keyPair.Id);
             Assert.Matches(keyPair.Type, "Ed25519VerificationKey2018");
             Assert.NotEmpty(keyPair.Controller);
-            Assert.NotEmpty(keyPair.PublicKeyMultibase);
+            Assert.NotEmpty(keyPair.PublicKeyBuffer);
         }
     }
 }

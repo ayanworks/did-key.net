@@ -7,15 +7,14 @@ using SimpleBase;
 
 namespace ed25519
 {
-    public class Ed25519KeyPair
+ 
+    public sealed class Ed25519KeyPair
     {
         public string Id { get; set; }
         public string Type { get; set; }
         public string Controller { get; set; }
-        public string PublicKeyMultibase { get; set; }
+        public byte[] PublicKeyBuffer { get; set; }
         public byte[] PrivateKeyBuffer { get; set; }
-
-        public Key KeyPair { get; set; }
 
         public Ed25519KeyPair()
         {
@@ -27,8 +26,34 @@ namespace ed25519
         //    Id = id;
         //    Controller = controller;
         //}
+        public Ed25519KeyPair(KeyPairOptions options)
+        {
+            this.Type = "Ed25519VerificationKey2018";
+            this.Id = options.Id;
+            this.Controller = options.Controller;
+            if (!string.IsNullOrEmpty(options.PublicKeyBase58))
+            {
+                this.PublicKeyBuffer = Base58.Bitcoin.Decode(options.PublicKeyBase58).ToArray();
+            }
+            else
+            {
+                throw new Exception(
+                  "Ed25519KeyPair requires publicKeyBase58 or publicKeyJwk, recieved neither."
+                );
+            }
 
-        public Ed25519KeyPair Generate(KeyPairOptions options)
+            if (!string.IsNullOrEmpty(options.PrivateKeyBase58))
+            {
+                this.PrivateKeyBuffer = Base58.Bitcoin.Decode(options.PrivateKeyBase58).ToArray();
+            }
+
+            if (!string.IsNullOrEmpty(this.Controller) && !(string.IsNullOrEmpty(this.Id)))
+            {
+                this.Id = string.Format("{0}#{1}", this.Controller, this.fingerprint());
+            }
+        }
+
+        public Ed25519KeyPair Generate(KeyPairOptions? options)
         {
             Key key;
             //if (options.SecureRamdom != null /*&& options.SecureRamdom.Length > 0*/)
@@ -61,16 +86,14 @@ namespace ed25519
 
             string keyId = String.Format("#{0}", didRaw);
             Console.WriteLine("keyId: {0}", keyId);
-            this.KeyPair = key;
-            return new Ed25519KeyPair
+           
+            return new Ed25519KeyPair(new KeyPairOptions
             {
                 Id = keyId,
                 Controller = did,
-                Type = "Ed25519VerificationKey2018",
-                PublicKeyMultibase = publicKeyBase58,
-                PrivateKeyBuffer = Base58.Bitcoin.Decode(privateKeyBase58).ToArray(),
-                KeyPair = key
-            };
+                PublicKeyBase58 = publicKeyBase58,
+                PrivateKeyBase58 = privateKeyBase58
+            });
         }
 
         private KeyCreationParameters createPolicy()
@@ -79,7 +102,11 @@ namespace ed25519
             return new KeyCreationParameters() { ExportPolicy = policy };
         }
 
-        public string fingerprintFromPublicKey(string publicKeyBase58)
+        public string fingerprint()
+        {
+            return Ed25519KeyPair.fingerprintFromPublicKey(Base58.Bitcoin.Encode(this.PublicKeyBuffer));
+        }
+        public static string fingerprintFromPublicKey(string publicKeyBase58)
         {
             byte[] pubkeyBytes = null;
 
@@ -105,25 +132,23 @@ namespace ed25519
             {
                 throw new Exception("No private key to sign with.");
             }
-             byte[] signatureUInt8Array = SignatureAlgorithm.Ed25519.Sign(this.KeyPair, Encoding.UTF8.GetBytes(data));
+            //Key keypair1 = new Key(SignatureAlgorithm.Ed25519, createPolicy());
+            Key keypair = Key.Import(SignatureAlgorithm.Ed25519, this.PrivateKeyBuffer, KeyBlobFormat.RawPrivateKey, createPolicy());
+             byte[] signatureUInt8Array = SignatureAlgorithm.Ed25519.Sign(keypair, Encoding.UTF8.GetBytes(data));
             return signatureUInt8Array;
         }
 
         public bool verify(string data,byte[] signature)
         {
-            if (this.PublicKeyMultibase == null)
+            if (this.PublicKeyBuffer == null)
             {
-                throw new Exception("No private key to sign with.");
+                throw new Exception("No public key to verify with.");
             }
-            bool isValid = SignatureAlgorithm.Ed25519.Verify(this.KeyPair.PublicKey, Encoding.UTF8.GetBytes(data), signature);
+            PublicKey publicKey = PublicKey.Import(SignatureAlgorithm.Ed25519, this.PublicKeyBuffer, KeyBlobFormat.RawPublicKey);
+            bool isValid = SignatureAlgorithm.Ed25519.Verify(publicKey, Encoding.UTF8.GetBytes(data), signature);
             return isValid;
         }
 
-        //Func<T> byte[] sign(string data)
-        //{
-        //    const string signatureUInt8Array = "";//algo_Ed25519.sign(this.PrivateKeyBuffer, data);
-        //    return signatureUInt8Array;
-        //}
-
+       
     }
 }
