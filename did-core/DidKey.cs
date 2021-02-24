@@ -1,20 +1,15 @@
 ﻿using ed25519;
 using SimpleBase;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DidCore
 {
-    public static class Did_Key
+    public static class DidKey
     {
-        public static Key_Pair Generate()
+        public static KeyPair Generate()
         {
             var ed25519KeyGenerator = new Ed25519KeyPair();
             var ed25519KeyPair = ed25519KeyGenerator.Generate(null);
-            var keyPair = new Key_Pair(ed25519KeyPair);
+            var keyPair = new KeyPair(ed25519KeyPair);
             return keyPair;
         }
 
